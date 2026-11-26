@@ -28,6 +28,7 @@ h1{font-size:24px;font-weight:600;margin:0 0 2px}
 .soon{padding:28px 16px;text-align:center;border:1px dashed var(--bd);border-radius:12px;color:var(--mu)}
 .lg{font:inherit;color:inherit;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:8px 6px 10px}
 .lg:active{border-color:var(--ac);background:var(--acbg)}
+.lg small{display:block;font-size:12px;opacity:.75;margin-top:2px}
 .lg b{display:block;font-size:16px;margin-top:2px}
 .lg svg{width:100%;height:auto;display:block}
 </style>
@@ -47,6 +48,9 @@ h1{font-size:24px;font-weight:600;margin:0 0 2px}
 <button role="tab" id="t-elephant" aria-selected="false">Elephant</button>
 <button role="tab" id="t-arrow" aria-selected="false">Arrow</button>
 <button role="tab" id="t-special" aria-selected="false">Special</button>
+<button role="tab" id="t-zshape" aria-selected="false">Z Shape</button>
+<button role="tab" id="t-fullyellow" aria-selected="false">Full Yellow</button>
+<button role="tab" id="t-bar" aria-selected="false">Bar</button>
 </div>
 <section id="p-algs"></section>
 <section id="p-moves" hidden></section>
@@ -57,13 +61,16 @@ h1{font-size:24px;font-weight:600;margin:0 0 2px}
 <section id="p-elephant" hidden></section>
 <section id="p-arrow" hidden></section>
 <section id="p-special" hidden></section>
+<section id="p-zshape" hidden></section>
+<section id="p-fullyellow" hidden></section>
+<section id="p-bar" hidden></section>
 </main>
 <script>
 var CO={y:"#F2C500",w:"#F4F4EE",b:"#1F5FBF",g:"#2E9B47",r:"#D63A2F",o:"#F28A1F"};
 function colFor(n){if(n[1]===1)return CO.y;if(n[1]===-1)return CO.w;if(n[2]===1)return CO.b;if(n[2]===-1)return CO.g;if(n[0]===1)return CO.r;return CO.o;}
 function solved(){var s=[],x,y,z,k,ns=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];for(x=-1;x<=1;x++)for(y=-1;y<=1;y++)for(z=-1;z<=1;z++){var P=[x,y,z];for(k=0;k<6;k++){var n=ns[k];if(n[0]!==0&&P[0]!==n[0])continue;if(n[1]!==0&&P[1]!==n[1])continue;if(n[2]!==0&&P[2]!==n[2])continue;s.push({p:P.slice(),n:n.slice(),c:colFor(n)});}}return s;}
-var ROT={F:function(v){return[v[1],-v[0],v[2]];},R:function(v){return[v[0],v[2],-v[1]];},L:function(v){return[v[0],-v[2],v[1]];},f:function(v){return[v[1],-v[0],v[2]];},U:function(v){return[-v[2],v[1],v[0]];},D:function(v){return[v[2],v[1],-v[0]];}};
-function inLayer(k,p){return k==="R"?p[0]===1:(k==="L"?p[0]===-1:(k==="f"?p[2]>=0:(k==="F"?p[2]===1:(k==="U"?p[1]===1:p[1]===-1))));}
+var ROT={F:function(v){return[v[1],-v[0],v[2]];},R:function(v){return[v[0],v[2],-v[1]];},L:function(v){return[v[0],-v[2],v[1]];},f:function(v){return[v[1],-v[0],v[2]];},M:function(v){return[v[0],-v[2],v[1]];},r:function(v){return[v[0],v[2],-v[1]];},B:function(v){return[-v[1],v[0],v[2]];},U:function(v){return[-v[2],v[1],v[0]];},D:function(v){return[v[2],v[1],-v[0]];}};
+function inLayer(k,p){if(k==="B")return p[2]===-1;return k==="R"?p[0]===1:(k==="L"?p[0]===-1:(k==="M"?p[0]===0:(k==="r"?p[0]>=0:(k==="f"?p[2]>=0:(k==="F"?p[2]===1:(k==="U"?p[1]===1:p[1]===-1))))));}
 function mv(s,m){return s.map(function(t){var p=t.p.slice(),n=t.n.slice();(m.parts||[m]).forEach(function(q){if(inLayer(q.k,t.p)){for(var i=0;i<q.t;i++){p=ROT[q.k](p);n=ROT[q.k](n);}}});return{p:p,n:n,c:t.c};});}
 function parse(str){return str.split(" ").map(function(x){var t=1;if(x.indexOf("'")>0)t=3;else if(x.indexOf("2")>0)t=2;return{k:x[0],t:t};});}
 function inv(a){return a.slice().reverse().map(function(m){return{k:m.k,t:(4-m.t)%4};});}
@@ -87,9 +94,10 @@ function cube(s,m){
     o+='<polygon points="'+pts(cs)+'" fill="'+f+'" stroke="'+(mg?"#ffffff":"#111111")+'" stroke-width="'+(mg?1.2:0.6)+'" stroke-linejoin="round"/>';
   });
   function arrowsFor(m){var o="";if(m&&(m.k==="F"||m.k==="f")){var pp=[],q,ang;for(q=0;q<=8;q++){ang=(m.t===3?q:8-q)*Math.PI/8;pp.push(pr([1.1*Math.cos(ang),1.1*Math.sin(ang),1.55]));}var d="M"+pp.map(function(z){return z[0].toFixed(1)+","+z[1].toFixed(1);}).join(" L");o+='<path d="'+d+'" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="#111111" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#ah)"/>';if(m.t===2){var M2=pr([0,0,1.6]);o+='<rect x="'+(M2[0]-19)+'" y="'+(M2[1]-12)+'" width="38" height="24" rx="12" style="fill:var(--card);stroke:var(--ac)" stroke-width="1.5"/><text x="'+M2[0]+'" y="'+M2[1]+'" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" style="fill:var(--ac)">x2</text>';}}
-  if(m&&m.k!=="F"&&m.k!=="f"){
+  if(m&&m.k==="B"){var MB=pr([0,1.5,-0.6]);o+='<rect x="'+(MB[0]-26)+'" y="'+(MB[1]-12)+'" width="52" height="24" rx="12" style="fill:var(--card);stroke:var(--ac)" stroke-width="1.5"/><text x="'+MB[0]+'" y="'+MB[1]+'" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="700" style="fill:var(--ac)">Back x2</text>';}
+  if(m&&m.k!=="F"&&m.k!=="f"&&m.k!=="B"){
     var A,B;
-    if(m.k==="R"||m.k==="L"){var xx=m.k==="R"?1:-1,up=m.k==="R"?(m.t===1):(m.t===3);A=up?[xx,-0.9,1.55]:[xx,0.9,1.55];B=up?[xx,0.9,1.55]:[xx,-0.9,1.55];}
+    if(m.k==="R"||m.k==="L"||m.k==="M"){var xx=m.k==="R"?1:(m.k==="L"?-1:0),up=m.k==="R"?(m.t===1):(m.t===3);A=up?[xx,-0.9,1.55]:[xx,0.9,1.55];B=up?[xx,0.9,1.55]:[xx,-0.9,1.55];}
     else if(m.both){A=[1.05,1.25,1.55];B=[-1.05,1.25,1.55];}else if(m.t===3){A=[-1.05,1,1.55];B=[1.05,1,1.55];}else{A=[1.05,1,1.55];B=[-1.05,1,1.55];}
     var p1=pr(A),p2=pr(B);
     o+='<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>';
@@ -106,7 +114,7 @@ function build(id,setup,lastLabel,mvs){
   h+='<p class="note">Bright layer is the one you turn. Follow the arrow.</p><div class="grid">';
   for(i=0;i<=N;i++){
     var cap=i<N?(i+1)+' · '+mvs[i].n+' <span>'+mvs[i].l+'</span>':lastLabel;
-    h+='<div class="card"><p class="cap">'+cap+'</p><svg viewBox="0 0 190 190" role="img" aria-label="Step '+(i+1)+'">'+cube(st[i],i<N?mvs[i]:null)+'</svg></div>';
+    h+='<div class="card"><p class="cap">'+cap+'</p><svg viewBox="0 0 190 190" role="img" aria-label="Step '+(i+1)+'">'+(i<N&&mvs[i].k==="B"?cube(st[i].map(function(t){return{p:[-t.p[0],t.p[1],-t.p[2]],n:[-t.n[0],t.n[1],-t.n[2]],c:t.c};}),{k:"F",t:2}):cube(st[i],i<N?mvs[i]:null))+'</svg></div>';
   }
   h+='</div>';
   return h;
@@ -121,29 +129,33 @@ var ARR=[{k:"R",t:3,l:"Right down",n:"R’"},{k:"U",t:3,l:"Top right",n:"U’"},
 document.getElementById("p-arrow").innerHTML=build("arrow",inv(parse("F U R U' R' F'")),"Result: fish",ARR)+'<p class="after">You now have a fish with the yellow corner at the front left. Use the Fish (Left) tab to finish the yellow side.</p>';
 var SPE=[{k:"F",t:2,l:"Front twice",n:"F2"},{k:"U",t:1,both:true,l:"Top, either way",n:"U or U’"},{parts:[{k:"L",t:1},{k:"R",t:3}],l:"Both sides down",n:"L R’"},{k:"F",t:2,l:"Front twice",n:"F2"},{parts:[{k:"L",t:3},{k:"R",t:1}],l:"Both sides up",n:"L’ R"},{k:"U",t:1,both:true,l:"Top, same way",n:"U or U’"},{k:"F",t:2,l:"Front twice",n:"F2"}];
 document.getElementById("p-special").innerHTML='<p class="note">Yellow top is done and only three side pieces are off. Hold the cube so the one correct edge is at the back.</p>'+build("special",inv(parse("F2 U L R' F2 L' R U F2")),"Done",SPE)+'<p class="after">Turn the top the same way both times. If the three edges need to cycle the other direction, use the opposite top turn both times.</p>';
-var LB={"R":"Right up","R’":"Right down","L":"Left down","L’":"Left up","U":"Top left","U’":"Top right","U2":"Top left twice","F":"Front turns right","F’":"Front turns left","F2":"Front twice","f":"Front two layers right","f’":"Front two layers left"};
-function mk(str){var raws=str.split(" ");return parse(str).map(function(m,i){var nm=raws[i].replace("'","’");return{k:m.k,t:m.t,n:nm,l:LB[nm]||""};});}
-var DF="R U R' U R U2 R' R U R' U R U2 R'",NF="f R U R' U' f' F R U R' U' F'";
+var LB={"R":"Right up","R’":"Right down","L":"Left down","L’":"Left up","U":"Top left","U’":"Top right","U2":"Top left twice","F":"Front turns right","F’":"Front turns left","F2":"Front twice","B2":"Cube turned around: back is now facing you, turn it twice","f":"Front two layers right","f’":"Front two layers left","r":"Right two columns up","r’":"Right two columns down"};
+function mk(str){var raws=str.split(" ");return parse(str).map(function(m,i){var nm=raws[i].replace("'","’");if(m.k==="r")return{parts:[{k:"R",t:m.t},{k:"M",t:(4-m.t)%4}],n:nm,l:LB[nm]||""};return{k:m.k,t:m.t,n:nm,l:LB[nm]||""};});}
+var DF="R U R' U R U2 R' R U R' U R U2 R'",NF="f R U R' U' f' F R U R' U' F'",ZF="F R' F' U' F U R U' F'";
 document.getElementById("p-dfish").innerHTML='<p class="note">Little Fish done two times. Yellow bars sit on the left and right, like the Algorithm Legend picture.</p>'+build("dfish",inv(parse(DF)),"Done",mk(DF));
 document.getElementById("p-nfish").innerHTML='<p class="note">Yellow cross, no yellow corners on top. Lowercase f turns the front two layers together.</p>'+build("nfish",inv(parse(NF)),"Done",mk(NF));
 var MV=[["R",1,"R","Right column up"],["R",3,"R’","Right column down"],["L",3,"L’","Left column up"],["L",1,"L","Left column down"],["U",1,"U","Top row left"],["U",3,"U’","Top row right"],["F",1,"F","Front turns right"],["F",3,"F’","Front turns left"],["U",2,"U2","Top row twice"],["F",2,"F2","Front twice"],["f",1,"f","Front two layers right"],["f",3,"f’","Front two layers left"]];
 var sv=solved(),mh='<p class="note">Yellow on top, the side facing you is the front. The bright part is what you turn and the arrow shows which way.</p><div class="grid">';
-MV.forEach(function(x){mh+='<div class="card"><p class="cap">'+x[2]+' <span>'+x[3]+'</span></p><svg viewBox="0 0 190 190" role="img" aria-label="'+x[2]+'">'+cube(sv,{k:x[0],t:x[1]})+'</svg></div>';});
+MV.forEach(function(x){mh+='<div class="card"><p class="cap">'+x[2]+' <span>'+x[3]+'</span></p><svg viewBox="0 0 190 190" role="img" aria-label="'+x[2]+'">'+cube(sv,x[0]==="r"?{parts:[{k:"R",t:x[1]},{k:"M",t:(4-x[1])%4}]}:{k:x[0],t:x[1]})+'</svg></div>';});
 document.getElementById("p-moves").innerHTML=mh+'</div><p class="after">A letter alone is a quarter turn. An apostrophe (’) means the opposite way. A 2 means two quarter turns, so the direction doesn’t matter.</p>';
+function sideNote(st){var c={Front:0,Back:0,Left:0,Right:0};st.forEach(function(t){if(t.p[1]!==1||t.n[1]!==0||t.c!==CO.y)return;if(t.n[2]===1)c.Front++;else if(t.n[2]===-1)c.Back++;else if(t.n[0]===1)c.Right++;else c.Left++;});var a=[];["Front","Back","Left","Right"].forEach(function(k){if(c[k])a.push(k+" "+c[k]);});return a.length?"Yellow on sides: "+a.join(", "):"No yellow on the sides";}
 function topView(st){var C=30,G=2,X=24,o="";
 st.forEach(function(t){var n=t.n,p=t.p;if(n[1]===1){o+='<rect x="'+(X+(p[0]+1)*(C+G))+'" y="'+(X+(p[2]+1)*(C+G))+'" width="'+C+'" height="'+C+'" rx="3" fill="'+(t.c===CO.y?"#F2C500":"#8a8a85")+'" stroke="#111" stroke-width="1.2"/>';}});
 function bar(x,y,w,h){o+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="1.5" fill="#F2C500" stroke="#111" stroke-width="1"/>';}
 st.forEach(function(t){var n=t.n,p=t.p;if(p[1]!==1||n[1]!==0||t.c!==CO.y)return;
-if(n[2]===1)bar(X+(p[0]+1)*(C+G),X+3*(C+G)+1,C,8);
-else if(n[2]===-1)bar(X+(p[0]+1)*(C+G),X-9,C,8);
-else if(n[0]===1)bar(X+3*(C+G)+1,X+(p[2]+1)*(C+G),8,C);
-else bar(X-9,X+(p[2]+1)*(C+G),8,C);});
+if(n[2]===1)bar(X+(p[0]+1)*(C+G),X+3*(C+G)+1,C,10);
+else if(n[2]===-1)bar(X+(p[0]+1)*(C+G),X-11,C,10);
+else if(n[0]===1)bar(X+3*(C+G)+1,X+(p[2]+1)*(C+G),10,C);
+else bar(X-11,X+(p[2]+1)*(C+G),10,C);});
 return o;}
-var AL=[["fishl","Fish (Left)",fishSetup],["fishr","Fish (Right)",fish2Setup],["dfish","Double Fish",inv(parse(DF))],["nfish","No Fish",inv(parse(NF))],["elephant","Elephant",eleSetup],["arrow","Arrow",inv(parse("F U R U' R' F'"))],["special","Special",inv(parse("F2 U L R' F2 L' R U F2"))]];
-var ah='<p class="note">Hold your cube with yellow on top. Turn the top layer until it matches a picture, then tap that card. Yellow bars are yellow stickers on the sides of the top layer.</p><div class="grid">';
-AL.forEach(function(x){ah+='<button class="lg" onclick="show(\''+x[0]+'\')"><svg viewBox="0 0 153 153" role="img" aria-label="'+x[1]+' start pattern">'+topView(states(x[2],[])[0])+'</svg><b>'+x[1]+'</b></button>';});
+var AL=[["fishl","Fish (Left)",fishSetup],["fishr","Fish (Right)",fish2Setup],["dfish","Double Fish",inv(parse(DF))],["nfish","No Fish",inv(parse(NF))],["elephant","Elephant",eleSetup],["arrow","Arrow",inv(parse("F U R U' R' F'"))],["special","Special",inv(parse("F2 U L R' F2 L' R U F2"))],["zshape","Z Shape",inv(parse(ZF))],["bar","Bar",inv(parse("f R U R' U' R U R' U' f'"))],["fullyellow","Full Yellow",inv(parse("R' F R' B2 R F' R' B2 U R U R' U' R' U' R' U R' U2"))]];
+var ah='<p class="note">Hold your cube with yellow on top. Turn the top layer until it matches a picture, then tap that card. Yellow bars are yellow stickers on the sides of the top layer. Under each picture it says which sides have yellow.</p><div class="grid">';
+AL.forEach(function(x){ah+='<button class="lg" onclick="show(\''+x[0]+'\')"><svg viewBox="0 0 153 153" role="img" aria-label="'+x[1]+' start pattern">'+topView(states(x[2],[])[0])+'</svg><b>'+x[1]+'</b><small>'+sideNote(states(x[2],[])[0])+'</small></button>';});
 document.getElementById("p-algs").innerHTML=ah+'</div><p class="after">These pictures look straight down at the top. The side facing you is at the bottom of each picture.</p>';
-var names=["algs","moves","fishr","fishl","dfish","nfish","elephant","arrow","special"];
+document.getElementById("p-zshape").innerHTML='<p class="note">Yellow runs down the middle with two opposite corners yellow on top. Match the picture in the Algorithm Legend, then follow the moves.</p>'+build("zshape",inv(parse(ZF)),"Done",mk(ZF));
+document.getElementById("p-fullyellow").innerHTML='<p class="note">Yellow top is all done, but side colors are mixed up: three corners and three edges need to swap around. Hold the cube so the corner that is already in the right place is at the front right and the edge that is already right is on the left. B2 means turn the back twice. Those pictures show the cube turned around so the back faces you.</p>'+build("fullyellow",inv(parse("R' F R' B2 R F' R' B2 U R U R' U' R' U' R' U R' U2")),"Done",mk("R' F R' B2 R F' R' B2 U R U R' U' R' U' R' U R' U2"));
+document.getElementById("p-bar").innerHTML='<p class="note">Yellow bar through the middle, but all four yellow corners point to the sides. Turn the top until it matches the Algorithm Legend picture. Lowercase f turns the front two layers together.</p>'+build("bar",inv(parse("f R U R' U' R U R' U' f'")),"Done",mk("f R U R' U' R U R' U' f'"));
+var names=["algs","moves","fishr","fishl","dfish","nfish","zshape","fullyellow","bar","elephant","arrow","special"];
 function show(n){names.forEach(function(m){document.getElementById("t-"+m).setAttribute("aria-selected",m===n?"true":"false");document.getElementById("p-"+m).hidden=(m!==n);});window.scrollTo(0,0);}
 names.forEach(function(n){document.getElementById("t-"+n).onclick=function(){show(n);};});
 </script>
