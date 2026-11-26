@@ -28,6 +28,8 @@ h1{font-size:24px;font-weight:600;margin:0 0 2px}
 .soon{padding:28px 16px;text-align:center;border:1px dashed var(--bd);border-radius:12px;color:var(--mu)}
 .lg{font:inherit;color:inherit;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:8px 6px 10px}
 .lg:active{border-color:var(--ac);background:var(--acbg)}
+.nx{display:block;margin:6px auto 2px;font:inherit;font-weight:600;color:var(--ac);background:var(--acbg);border:1px solid var(--ac);border-radius:10px;padding:8px 12px;cursor:pointer}
+.fin{font-size:12px;opacity:.75;margin:4px 8px 2px;text-align:center}
 .lg small{display:block;font-size:12px;opacity:.75;margin-top:2px}
 .lg b{display:block;font-size:16px;margin-top:2px}
 .lg svg{width:100%;height:auto;display:block}
@@ -109,16 +111,28 @@ function cube(s,m){
   if(m){(m.parts||[m]).forEach(function(q){o+=arrowsFor(q);});}
   return o;
 }
+var NAMES={fishl:"Fish (Left)",fishr:"Fish (Right)",arrow:"Arrow",elephant:"Elephant",bar:"Line"};
+var FIN={bar:{next:"arrow",show:"next"},arrow:{next:"fishl"},elephant:{next:"fishr"}};
+function grayTop(){return solved().map(function(t){return{p:t.p,n:t.n,c:t.n[1]===1?CO.y:"#8a8a85"};});}
+function finalCard(id,st,lastLabel){
+  var f=FIN[id],cap,sv,btn="";
+  if(f){var nm=NAMES[f.next];
+    sv=f.show==="next"?states(NEXTSET[f.next],[])[0]:st;
+    cap="Result: "+(f.show==="next"?nm+" pattern":lastLabel.replace("Result: ",""));
+    btn='<button class="nx" onclick="show(\''+f.next+'\')">Next: '+nm+' tab →</button>';
+  }else{sv=grayTop();cap="Yellow side finished";btn='<p class="fin">Top is all yellow. The pieces on the sides of the top layer may not match yet.</p>';}
+  return '<div class="card"><p class="cap">'+cap+'</p><svg viewBox="0 0 190 190" role="img" aria-label="Result">'+cube(sv,null)+'</svg>'+btn+'</div>';
+}
 function build(id,setup,lastLabel,mvs){
   var st=states(setup,mvs),h="",i,N=mvs.length;
   h+='<p class="note">Bright layer is the one you turn. Follow the arrow.</p><div class="grid">';
-  for(i=0;i<=N;i++){
-    var cap=i<N?(i+1)+' · '+mvs[i].n+' <span>'+mvs[i].l+'</span>':lastLabel;
-    h+='<div class="card"><p class="cap">'+cap+'</p><svg viewBox="0 0 190 190" role="img" aria-label="Step '+(i+1)+'">'+(i<N&&mvs[i].k==="B"?cube(st[i].map(function(t){return{p:[-t.p[0],t.p[1],-t.p[2]],n:[-t.n[0],t.n[1],-t.n[2]],c:t.c};}),{k:"F",t:2}):cube(st[i],i<N?mvs[i]:null))+'</svg></div>';
+  for(i=0;i<N;i++){
+    h+='<div class="card"><p class="cap">'+(i+1)+' · '+mvs[i].n+' <span>'+mvs[i].l+'</span></p><svg viewBox="0 0 190 190" role="img" aria-label="Step '+(i+1)+'">'+(mvs[i].k==="B"?cube(st[i].map(function(t){return{p:[-t.p[0],t.p[1],-t.p[2]],n:[-t.n[0],t.n[1],-t.n[2]],c:t.c};}),{k:"F",t:2}):cube(st[i],mvs[i]))+'</svg></div>';
   }
-  h+='</div>';
+  h+=finalCard(id,st[N],lastLabel)+'</div>';
   return h;
 }
+var NEXTSET={arrow:inv(parse("F U R U' R' F'"))};
 var ALG2=[{k:"R",t:3,l:"Right down",n:"R’"},{k:"U",t:3,l:"Top right",n:"U’"},{k:"R",t:1,l:"Right up",n:"R"},{k:"U",t:3,l:"Top right",n:"U’"},{k:"R",t:3,l:"Right down",n:"R’"},{k:"U",t:2,l:"Top left twice",n:"U2"},{k:"R",t:1,l:"Right up",n:"R"}];
 var fishSetup=inv(ALG),fish2Setup=inv(ALG2);
 var eleSetup=inv(parse("R2 D R' U2 R D' R' U2 R'"));
