@@ -45,8 +45,8 @@ h1{font-size:24px;font-weight:600;margin:0 0 2px}
 <button role="tab" id="t-moves" aria-selected="false">Move Legend</button>
 <button role="tab" id="t-fishr" aria-selected="false">Fish (Right)</button>
 <button role="tab" id="t-fishl" aria-selected="false">Fish (Left)</button>
-<button role="tab" id="t-dfish" aria-selected="false">Double Fish</button>
-<button role="tab" id="t-nfish" aria-selected="false">No Fish</button>
+<button role="tab" id="t-dfish" aria-selected="false">Cross (1)</button>
+<button role="tab" id="t-nfish" aria-selected="false">Cross (2)</button>
 <button role="tab" id="t-elephant" aria-selected="false">Elephant</button>
 <button role="tab" id="t-arrow" aria-selected="false">Arrow</button>
 <button role="tab" id="t-special" aria-selected="false">Special</button>
@@ -164,7 +164,7 @@ else if(n[2]===-1)bar(X+(p[0]+1)*(C+G),X-11,C,10);
 else if(n[0]===1)bar(X+3*(C+G)+1,X+(p[2]+1)*(C+G),10,C);
 else bar(X-11,X+(p[2]+1)*(C+G),10,C);});
 return o;}
-var AL=[["fishl","Fish (Left)",fishSetup],["fishr","Fish (Right)",fish2Setup],["dfish","Double Fish",inv(parse(DF))],["nfish","No Fish",inv(parse(NF))],["elephant","Elephant",eleSetup],["arrow","Arrow",inv(parse("F U R U' R' F'"))],["special","Special",inv(parse("F2 U L R' F2 L' R U F2"))],["zshape","Z Shape",inv(parse(ZF))],["bar","Line",{state:LINEST}],["fullyellow","Full Yellow",inv(parse("R' F R' B2 R F' R' B2 U R U R' U' R' U' R' U R' U2"))]];
+var AL=[["fishl","Fish (Left)",fishSetup],["fishr","Fish (Right)",fish2Setup],["dfish","Cross (1)",inv(parse(DF))],["nfish","Cross (2)",inv(parse(NF))],["elephant","Elephant",eleSetup],["arrow","Arrow",inv(parse("F U R U' R' F'"))],["special","Special",inv(parse("F2 U L R' F2 L' R U F2"))],["zshape","Z Shape",inv(parse(ZF))],["bar","Line",{state:LINEST}],["fullyellow","Full Yellow",inv(parse("R' F R' B2 R F' R' B2 U R U R' U' R' U' R' U R' U2"))]];
 var ah='<p class="note">Hold your cube with yellow on top. Turn the top layer until it matches a picture, then tap that card. Yellow bars are yellow stickers on the sides of the top layer. Under each picture it says which sides have yellow.</p><div class="grid">';
 AL.forEach(function(x){ah+='<button class="lg" onclick="show(\''+x[0]+'\')"><svg viewBox="0 0 153 153" role="img" aria-label="'+x[1]+' start pattern">'+topView(states(x[2],[])[0])+'</svg><b>'+x[1]+'</b><small>'+sideNote(states(x[2],[])[0])+'</small></button>';});
 document.getElementById("p-algs").innerHTML=ah+'</div><p class="after">These pictures look straight down at the top. The side facing you is at the bottom of each picture.</p>';
